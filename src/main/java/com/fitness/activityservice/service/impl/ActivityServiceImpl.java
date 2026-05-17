@@ -2,10 +2,12 @@ package com.fitness.activityservice.service.impl;
 
 import com.fitness.activityservice.dto.ActivityRequest;
 import com.fitness.activityservice.dto.ActivityResponse;
+import com.fitness.activityservice.exception.InvalidRequestException;
 import com.fitness.activityservice.exception.ResourceNotFoundException;
 import com.fitness.activityservice.model.Activity;
 import com.fitness.activityservice.repositories.ActivityRepository;
 import com.fitness.activityservice.service.ActivityService;
+import com.fitness.activityservice.service.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +19,16 @@ import java.util.stream.Collectors;
 public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final UserValidationService userValidationService;
+
     @Override
     public ActivityResponse trackActivity(ActivityRequest request) {
+
+        boolean isValidUser = userValidationService.validateUser(request.getUserId());
+        if (!isValidUser) {
+            throw new InvalidRequestException("Invalid User: " + request.getUserId());
+        }
+
         Activity activity = Activity.builder()
                 .userId(request.getUserId())
                 .type(request.getType())

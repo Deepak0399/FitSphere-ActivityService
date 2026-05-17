@@ -1,9 +1,13 @@
 package com.fitness.activityservice.service.impl;
 
+import com.fitness.activityservice.exception.InvalidRequestException;
+import com.fitness.activityservice.exception.ResourceNotFoundException;
 import com.fitness.activityservice.service.UserValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
@@ -13,10 +17,18 @@ public class UserValidationServiceImpl implements UserValidationService {
 
     @Override
     public boolean validateUser(String userId) {
-        return userServiceWebClient.get()
-                .uri("/api/users/{userId}/validate", userId)
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .block();
+        try {
+            return Boolean.TRUE.equals(userServiceWebClient.get()
+                    .uri("/api/users/{userId}/validate", userId)
+                    .retrieve()
+                    .bodyToMono(Boolean.class)
+                    .block());
+        } catch (WebClientResponseException exception) {
+            if (exception.getStatusCode() == HttpStatus.NOT_FOUND)
+                throw new ResourceNotFoundException("User Not Found: " + userId);
+            else if (exception.getStatusCode() == HttpStatus.BAD_REQUEST)
+                throw new InvalidRequestException("Invalid Request: " + userId);
+        }
+        return false;
     }
 }

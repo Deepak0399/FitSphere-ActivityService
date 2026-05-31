@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
-public class ActivityRequest {
+public class ActivityCreateRequest {
     private String userId;
     private ActivityType type;
     private Integer duration;

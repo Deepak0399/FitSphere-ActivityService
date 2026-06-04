@@ -61,7 +61,7 @@ public class  ActivityServiceImpl implements ActivityService {
         } catch (MessageConversionException e) {
             log.error("Failed to Convert the message data: ", e);
         } catch (AmqpConnectException e) {
-        // Case: RabbitMQ broker is down or network unreachable
+        // Case: RabbitMQ broker is down or network-unreachable
         log.error("Cannot connect to RabbitMQ broker.", e);
         } catch (AmqpException e) {
         // Case: General AMQP errors (e.g., channel closed, admin errors)
@@ -70,6 +70,7 @@ public class  ActivityServiceImpl implements ActivityService {
         // Case: Unexpected runtime exceptions
         log.error("Unexpected error during message sending.", e);
     }
+        log.info("Activity send to queue for recommendation processing: {}", savedActivity);
         return mapToResponse(savedActivity);
     }
 
